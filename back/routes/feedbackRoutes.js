@@ -11,10 +11,11 @@ router.route("/:activityId/:feedbackId")
 
 router.route("")
     .get(feedbackController.getAllFeedbacks)
+router.route("/getFeedbacks/:activityId")
+    .get(feedbackController.getFeedbacksByActivity)
 router.route("/:feedbackId")
     .get(feedbackController.getFeedbackById)
-router.route("/getFeedbacks/:activityName")
-    .get(feedbackController.getFeedbacksByActivity)
+
 
 
 module.exports=router

@@ -9,7 +9,7 @@ router.route("/:activityId")
     .get(activityController.getActivityById)
     .patch(activityController.updateActivity)
     .delete(activityController.deleteActivity)
-router.route("/getActivities/:subjectName")
+router.route("/getActivities/:subjectName/:subjectType")
     .get(activityController.getActivitiesBySubject)
 module.exports=router
 

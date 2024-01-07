@@ -24,16 +24,16 @@ const feedbackController = {
         } catch (err) {
             return res.status(500).send({ message: "Server error!" });
         }
-        
     },
     addFeedback: async (req, res) => {
         try {
             let {
-                countSmiley,countFrowny,countSurprised,countConfused,activityId
+                countSmiley,countFrowny,countSurprised,countConfused
             } = req.body
-            let feedback = await FeedbackDB.create({ ...req.body, studentId:req.user})
-            return res.status(201).send({ message: "feedback created" }, feedback)
+            let feedback = await FeedbackDB.create({ ...req.body, activityId:req.params.activityId, studentId:req.user})
+            return res.status(201).send({ message: "feedback created", feedback })
         } catch (err) {
+            console.log(err)
             return res.status(500).send({ message: "Server error!" });
         }
     },
@@ -52,7 +52,7 @@ const feedbackController = {
             }
             await feedback.update({ ...req.body })
             feedback = await feedback.save()
-            return res.status(200).send({ message: "feedback updated" }, feedback)
+            return res.status(200).send({ message: "feedback updated", feedback })
         } catch {
             return res.status(500).send({ message: "Server error!" });
         }
@@ -72,19 +72,16 @@ const feedbackController = {
     },
     getFeedbacksByActivity: async (req, res) => {
         try {
-            const activityName = req.params.activityName;
-            if (!activityName) {
-                return res.status(400).send("provide a name")
-            }
-            const activity = await ActivityDB.findOne({
-              where: { name:activityName },
-            });
-            if(!activity) {
-                return res.status(404).send({ message: `activity does not exist` });
+            const activityId = req.params.activityId;
+            if (!activityId) {
+                return res.status(400).send("provide an id")
             }
             const feedbacks = await FeedbackDB.findAll({
-              where: { activityId: activity.id },
+              where: { activityId },
             });
+            if(!feedbacks.length) {
+                return res.status(404).send({ message: ` does not exist feedback for this activity` });
+            }
             return res.status(200).send(feedbacks)
         } catch (error) {
             return res.status(500).send({ message: "Server Error!" });

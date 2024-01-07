@@ -19,7 +19,7 @@ const subjectController = {
         try {
             let subject = await SubjectDb.findOne({ where: { subjectId } })
             if (!subject) {
-                return res.status(404).send({message:"subject does not exist"})
+                return res.status(404).send({message:"Subject does not exist"})
              }
             return res.status(200).send(subject)
         } catch (err) {
@@ -33,8 +33,9 @@ const subjectController = {
                 name,typeOfSubject,teacherId
             } = req.body
             let subject = await SubjectDb.create({ ...req.body})
-            return res.status(201).send({ message: "subject created" }, subject)
+            return res.status(201).send({ message: "subject created", subject })
         } catch (err) {
+            console.log(err)
             return res.status(500).send({ message: "Server error!" });
         }
     },
@@ -70,6 +71,7 @@ const subjectController = {
     },
     getSubjectsByTeacher: async (req, res) => {
         try {
+            console.log(req.user)
             let subjects = await SubjectDb.findAll({where:{teacherId:req.user}})
             if (!subjects.length) {
                 return res.status(404).send(`No subjects existing for teacher`);
@@ -79,7 +81,6 @@ const subjectController = {
             return res.status(500).send({ message: "Server error!" });
         }
     }
-    
 }
 
 module.exports = subjectController

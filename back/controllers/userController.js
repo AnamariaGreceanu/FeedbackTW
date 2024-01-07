@@ -2,11 +2,12 @@ const UserDb = require("../models").User
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 
+const Op = require("sequelize").Op
+const dotenv = require('dotenv');
+
+dotenv.config()
 let generateToken = (mail) => {
-    let token = jwt.sign(mail,process.env.JWT_SECRET)
-    // res.status(200).send({
-    //     mail,token
-    // });
+    let token = jwt.sign({mail},process.env.JWT_SECRET)
     return token
 }
 
@@ -33,29 +34,39 @@ const userController = {
         } catch (err) {
             res.status(500).send({ message: "Server error!" });
         }
-        
     },
     addUser: async (req, res) => {
         try {
+            console.log(req.body)
             let {
                 username,lastName,firstName,password,mail,typeUser
             } = req.body
             if (!username || !password || !mail) {
                 return res.status(400).send("username,password and mail are mandatory!")
             }
-            let user = await UserDb.findOne({
-                where:{[Op.or]: [{ username }, { mail }]}
-            })
-            if (user) {
-                return res.status(400).send("user already registered")
+            let user
+            try {
+                user = await UserDb.findOne({
+                    where: {
+                        [Op.or]: [{ username }, { mail }]
+                    }
+                });
+                if (user) {
+                    return res.status(400).send("User already registered");
+                } 
+            } catch (err) {
+                console.log(err)
+                return res.status(400).send(err)
             }
+
             let salt=await bcrypt.genSalt(10)
             let encryptedPassw = await bcrypt.hash(password, salt)
-            user = await UserDb.create({ ...req.body, password: encryptedPassw })
-            
+            user = await UserDb.create( {...req.body, password: encryptedPassw})
+
             let accessToken = generateToken(user.mail)
-            return res.status(201).send({ message: "accountcreated" }, user,accessToken)
+            return res.status(201).json({ message: "Account created succesfully!", user ,accessToken});
         } catch (err) {
+            console.log(err)
             res.status(500).send({ message: "Server error!" });
         }
     },
@@ -100,6 +111,7 @@ const userController = {
             let accessToken = generateToken(user.mail)
             return res.status(200).send({ message: "Logged in!", user, accessToken }); 
         } catch (err) {
+            console.log(err)
             res.status(500).send({ message: "Server Error!" });
         }
     }
