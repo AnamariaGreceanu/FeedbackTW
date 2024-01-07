@@ -16,8 +16,9 @@ const authenticateToken = (req, res, next) => {
       }
       const user = await UserDb.findOne({where:{mail}})
       req.user = user.id
+      return next();
+
     });
-    return next();
 };
   
 module.exports=authenticateToken

@@ -10,18 +10,22 @@ const Subject = SubjectModel(db, DataTypes)
 const Feedback = FeedbackModel(db, DataTypes)
 const Activity = ActivityModel(db, DataTypes)
 
-Subject.belongsTo(User)
+Subject.belongsTo(User,{
+    foreignKey:"teacherId"
+})
 User.hasMany(Subject,{
     foreignKey:"teacherId"
 })
 
-Activity.belongsTo(Subject)
-Subject.hasMany(Activity)
+Activity.belongsTo(Subject, { foreignKey: 'subjectId' })
+Subject.hasMany(Activity, { foreignKey: 'subjectId' })
 
-Feedback.belongsTo(Activity)
-Activity.hasMany(Feedback)
+Feedback.belongsTo(Activity, { foreignKey: 'activityId' })
+Activity.hasMany(Feedback, { foreignKey: 'activityId' })
 
-Feedback.belongsTo(User)
+Feedback.belongsTo(User,{
+    foreignKey:"studentId"
+})
 User.hasMany(Feedback,{
     foreignKey:"studentId"
 })

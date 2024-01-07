@@ -4,9 +4,9 @@ const jwt = require("jsonwebtoken")
 
 let generateToken = (mail) => {
     let token = jwt.sign(mail,process.env.JWT_SECRET)
-    res.status(200).send({
-        mail,token
-    });
+    // res.status(200).send({
+    //     mail,token
+    // });
     return token
 }
 
@@ -50,7 +50,7 @@ const userController = {
                 return res.status(400).send("user already registered")
             }
             let salt=await bcrypt.genSalt(10)
-            let encryptedPassw = await bycript.hash(password, salt)
+            let encryptedPassw = await bcrypt.hash(password, salt)
             user = await UserDb.create({ ...req.body, password: encryptedPassw })
             
             let accessToken = generateToken(user.mail)
@@ -80,7 +80,7 @@ const userController = {
             if (!username || !password) {
                 return res.status(400).send("complete all the fields!")
             }
-            let user = UserDb.findOne({ where: { username } })
+            let user = await UserDb.findOne({ where: { username } })
 
             if (role === 'teacher') {
                 if (!user || user.typeUser != "teacher") {

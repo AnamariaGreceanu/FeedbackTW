@@ -32,13 +32,14 @@ module.exports = (db, DataTypes) => {
             allowNull: false,
             defaultValue:false
         },
-        subjectId:{
-            type:DataTypes.INTEGER,
-            allowNull: true,
-        },
+        // subjectId:{
+        //     type:DataTypes.INTEGER,
+        //     allowNull: true,
+        // },
       },
       {
         freezeTableName: true,
+        
       }
     );
     return activity;

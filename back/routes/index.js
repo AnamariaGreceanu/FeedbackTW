@@ -1,11 +1,11 @@
 const express = require("express")
 const router = express.Router()
 
-const userRouter=require("./user")
-const subjectRouter=require("./subject")
-const activityRouter=require("./activity")
-const feedbackRouter = require("./feedback")
-const dbRouter = require("./db")
+const userRouter=require("./userRoutes")
+const subjectRouter=require("./subjectRoutes")
+const activityRouter=require("./activityRoutes")
+const feedbackRouter = require("./feedbackRoutes")
+const dbRouter = require("./dbRoutes")
 
 router.use("/user", userRouter)
 router.use("/subject", subjectRouter)

@@ -4,4 +4,4 @@ const dbController = require("../controllers/dbController")
 
 router.get("/reset",dbController.reset)
 
-
+module.exports=router
