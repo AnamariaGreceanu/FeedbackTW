@@ -1,18 +1,19 @@
 import React, { useState ,useContext} from "react";
 import { login } from "../api/api";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { IoIosMail } from "react-icons/io";
+import { RiLockPasswordLine } from "react-icons/ri";
 // import Cookies from "universal-cookie";
-
+import '../assets/css/pages/Auth.css'
 import { RootContext } from "../routes/RootProvider";
 
 function Login() {
-    let role;
     const [mail, setMail] = useState("");
     const [password, setPassword] = useState("");
     
     const userContext = useContext(RootContext)
     const { setUser, setTypeUser } = userContext
-
+    const [role, setRole] = useState("");
     const navigate = useNavigate();
 
     async function onSubmit(event) {
@@ -34,12 +35,12 @@ function Login() {
     }
 
     const handleTeacherClick = () => {
-         role = 'teacher';
+        setRole('teacher');
         console.log('Role selected:', role);
     };
     
     const handleStudentClick = () => {
-         role = 'student';
+        setRole('student'); 
         console.log('Role selected:', role);
     };
   
@@ -47,35 +48,47 @@ function Login() {
     // const cookies = new Cookies();
 
     return (
-        <div className="column items-center">
-        <div className="form-title-class text-white text-center" style={{ border: '2.5px solid $secondary', maxWidth: '400px', marginTop: '40px', width: '100%' }}>
-            <div className="text-h6">LOG IN</div>
-        </div>
-        <form onSubmit={onSubmit}>
-          <input
-            type="mail"
-            value={mail}
-            onChange={(e) => setMail(e.target.value)}
-            placeholder="mail"
-            required
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            required
-         />
-        <div>
-            <button onClick={handleTeacherClick}>Teacher</button>
-            <button onClick={handleStudentClick}>Student</button>
+        <div className="container">
+            <div className="form-title-class">
+                <div className="text">LOG IN</div>
+                <div className="underline"></div>
+            </div>
+            <div className="handleUser">
+                <button className="handle"onClick={handleTeacherClick}>Teacher</button>
+                <button className="handle"onClick={handleStudentClick}>Student</button>
+            </div>
+            { role && (
+                <p style={{ textAlign: 'center', color: '#676767' }}>
+                    You selected: {role}
+                </p>
+            )}
+            <form onSubmit={onSubmit}>
+                <div className="input">
+                    <IoIosMail />
+                    <input
+                        type="mail"
+                        value={mail}
+                        onChange={(e) => setMail(e.target.value)}
+                        placeholder="mail"
+                        required />
                 </div>
-                <div>
+                <div className="input">
+                    <RiLockPasswordLine />
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Password"
+                        required />
+                </div>
                 <button type="submit">Login</button>
-                <button onClick={() => navigate('/register')} style={{ width: '110%' }}>Register</button>
-                </div>
-        </form>
-      
+            </form>
+            <div className="register">
+                <div> dont have an account?</div>
+            <div>
+                <button onClick={() => navigate('/register')} >Register</button>
+            </div>
+        </div>
     </div>
     );
 }
