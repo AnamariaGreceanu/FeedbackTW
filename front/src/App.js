@@ -1,12 +1,12 @@
-
+import RootProvider from "./routes/RootProvider";
+import Paths from "./routes/Paths";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-       
-      </header>
-    </div>
+    <RootProvider>
+    <Paths />
+  </RootProvider>
+
   );
 }
 
