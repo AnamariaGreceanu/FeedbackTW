@@ -1,0 +1,89 @@
+
+.age-subjects{
+    min-height: 92.5vh;
+    height: fit-content;
+    width: 100vw;
+    /* background: linear-gradient(180deg, black, #4e1010); */
+    /* background-position: cover; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.main-container{
+    height: 60vh;
+    width: 80vw;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.subjectList{
+    width: 25vw;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: scroll;
+    height: 60vh;
+    flex-grow: 1;
+}
+
+.subject-item{
+    color: #f6f6f6;
+    min-height: 100px;
+    margin: 16px 0px;
+    background-color: #821619;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 10px;
+}
+.subject-item span {
+    display: block;
+    margin: 4px;
+}
+
+.subject-details{
+    background-color: #EFE5D0;
+    height: 100%;
+    width: 55vw;
+    min-width: fit-content;
+    overflow: scroll;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 400px;
+    flex-grow: 1;
+}
+
+.container-activities{
+    background-color: #f6f6f6;
+    width: 80%;
+    height: fit-content;
+    padding: 16px 32px 16px 16px;
+    margin: 12px 24px;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+border-radius: 5px;
+/* display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px; */
+}
+.activity-item {
+    background-color: #8866af;
+    width: 80%;
+    height: fit-content;
+    padding: 16px 32px 16px 16px;
+    margin: 12px 24px;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    border-radius: 5px;
+  }
