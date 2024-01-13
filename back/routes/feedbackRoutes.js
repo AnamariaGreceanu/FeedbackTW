@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const feedbackController = require("../controllers/feedbackController")
-const tryAccessCode = require("../controllers/activityController").tryAccessCode
+const checkAvailability = require("../controllers/activityController").tryAccessCode
 
-router.route("/:activityId")
-    .post(tryAccessCode, feedbackController.addFeedback)
+router.route("/addFeedback/:activityId")
+    .post(checkAvailability, feedbackController.addFeedback)
 router.route("/:activityId/:feedbackId")
-    .patch(tryAccessCode,feedbackController.updateFeedback)
-    .delete(tryAccessCode, feedbackController.deleteFeedback)
+    .patch(checkAvailability,feedbackController.updateFeedback)
+    .delete(checkAvailability, feedbackController.deleteFeedback)
 
 router.route("")
     .get(feedbackController.getAllFeedbacks)

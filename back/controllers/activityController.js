@@ -113,7 +113,7 @@ const activityController = {
             return res.status(500).send({ message: "Server Error!" });
           }
     },
-    tryAccessCode: async (req, res,next) => {
+    checkAvailability: async (req, res, next) => {
         try {
             let { activityId } = req.params;
             if (!activityId) {
@@ -126,19 +126,35 @@ const activityController = {
             if (!checkAvailability(activity.startDate, activity.endDate)) {
                 activity.isActive = false
                 await activity.save()
-                return res.status(404).send({ message: `the code is not longer available` });
+                return res.status(404).send({ message: `the activity is not longer available` });
             }
             activity.isActive = true
             await activity.save()
-            let { accessCode } = req.body
-            if (activity.accessCode !== accessCode) {
-                return res.status(404).send({ message: `code is wrong`});
-            }
             next()
         } catch (err) {
             return res.status(500).send({ message: "Server Error!" });
         }
+    },
+    checkAccessCode: async (req, res, next) => {
+        try {
+            let { activityId } = req.params;
+            if (!activityId) {
+                return res.status(400).send("provide an activity id")
+            }
+            let activity = await ActivityDB.findByPk(activityId)
+            if (!activity) {
+                return res.status(404).send("activity does not exist")
+            }
+            let { accessCode } = req.body
+            if (activity.accessCode !== accessCode) {
+                return res.status(404).send({ message: `code is wrong`});
+            }
+            return res.status(200).send(true)
+        }catch (err) {
+            return res.status(500).send({ message: "Server Error!" });
+        }
     }
+    
 }
 
 module.exports = activityController
