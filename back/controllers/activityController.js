@@ -61,11 +61,16 @@ const activityController = {
             let {
                 name, startDate,description,accessCode,endDate,subjectId
             } = req.body
+            console.log("dati", startDate, endDate)
+            console.log("seubject",subjectId)
+
             if (startDate > endDate) {
                 return res.status(404).send("starting date should be before ending date")
             }
-            isActive=checkAvailability(startDate,endDate)
-            let activity = await ActivityDB.create({ ...req.body, isActive, subjectId})
+            isActive = checkAvailability(startDate, endDate)
+            console.log("isactive",isActive)
+            let activity = await ActivityDB.create({ ...req.body, isActive })
+            console.log("activity",activity)
             return res.status(201).send({ message: "activity created", activity })
         } catch (err) {
             return res.status(500).send({ message: "Server error!" });

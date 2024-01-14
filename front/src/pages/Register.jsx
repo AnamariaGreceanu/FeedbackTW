@@ -22,9 +22,11 @@ function Register() {
     async function onSubmit(event) {
         event.preventDefault()
 
+        console.log(typeUser)
         const userData = {
             username,lastName,firstName,password,mail,typeUser
         }
+        console.log(userData)
 
         try {
             const user = await registerUser(userData)

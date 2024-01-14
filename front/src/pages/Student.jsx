@@ -149,7 +149,7 @@ function Student() {
                       {activities.map((activity) => (
                           <div key={activity.activityId} className={"activity-item"}>
                           <span>Id:{activity.activityId} Name:{activity.name}</span>
-                            <span>Desciption: {activity.description}</span>
+                            <span>Description: {activity.description}</span>
                           <span>Is still available: {activity.isActive==true ? 'Yes' : 'No'}</span>
                             <div>
                               <Button onClick={handleOpenModal}>Show feedback</Button>

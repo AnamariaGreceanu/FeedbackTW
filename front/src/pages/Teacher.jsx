@@ -1,56 +1,94 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { getSubjects,getActivitiesBySubject,addActivity,getFeedbackByActivity } from "../api/api";
+import { RootContext } from "../routes/RootProvider";
+import { useNavigate } from "react-router-dom"; 
 
 const TeacherPage = () => {
-  const [activitiesBySubject, setActivitiesBySubject] = useState({});
+  const [subjects, setSubjects] = useState([])
   const [activities, setActivities] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [feedbackData, setFeedbackData] = useState(null);
+  
+  const navigate = useNavigate();
+  const { user,setUser,setTypeUser } = useContext(RootContext)
+  
+  function logout() {
+    localStorage.removeItem('JWTToken');
+    localStorage.removeItem('username');
+    localStorage.removeItem('user');
+  
+    setUser(null);
+    setTypeUser(null);
+    navigate('/login');
+  }
 
-  const fetchFeedbackData = (title) => {
-    // Simulează o cerere către baza de date pentru feedback
-    // Înlocuiește cu metoda reală de obținere a feedback-ului
-    const simulatedFeedbackData = {
-      date: '2022-03-15',
-      text: 'Feedback-ul pentru activitatea X este pozitiv.',
-    };
-    setFeedbackData(simulatedFeedbackData);
-  };
-
-  const handleSaveActivity = (activity) => {
-    const updatedActivities = [...(activitiesBySubject[selectedSubject] || []), activity];
-    setActivitiesBySubject({
-      ...activitiesBySubject, [selectedSubject]: updatedActivities,
-    });
-    setIsModalOpen(false); // Închide modalul după salvare
+  const handleSaveActivity = async (activity) => {
+    try {
+      const response = await addActivity(activity,selectedSubject.subjectId);
+      const updatedActivitiesResponse = await getActivitiesBySubject(selectedSubject.name, selectedSubject.typeOfSubject);
+      if (updatedActivitiesResponse.status === 200) {
+        setActivities(updatedActivitiesResponse.data);
+      }
+      setIsModalOpen(false);
+      setSelectedActivity(null);
+      setFeedbackData(null);
+    } catch (error) {
+      console.error('Failed to add activity:', error.message);
+    }
   };
 
   const handleSubjectSelect = (subject) => {
     setSelectedSubject(subject);
     setSelectedActivity(null); // Adaugă această linie pentru a reseta activitatea selectată
-    setFeedbackData(null); // Și această linie pentru a reseta feedback-ul
+    setFeedbackData(null);
+    console.log(selectedSubject)// Și această linie pentru a reseta feedback-ul
   };
 
   useEffect(() => {
-    // Verificăm dacă o materie este selectată și obținem feedback-ul pentru acea materie
-    if (selectedSubject && selectedActivity) {
-      fetchFeedbackData(selectedActivity.title); // Poți înlocui cu metoda reală de obținere a feedback-ului
-    }else{
-      setFeedbackData(null);
+    getSubjects()
+      .then((response) => {
+        if (response.status === 200) {
+            const subjectsByTeacher = response.data.filter(subject => subject.teacherId == user.userId);
+            setSubjects(subjectsByTeacher);
+            
+          }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (selectedSubject) {
+      getActivitiesBySubject(selectedSubject.name, selectedSubject.typeOfSubject)
+        .then((response) => {
+          if (response.status === 200) {
+            setActivities(response.data);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
-  }, [selectedActivity]);
+  }, [selectedSubject]);
 
   const SubjectsList = () => {
-    const subjects = ['Multimedia', 'TW', 'Android', 'DSAD'];
-
     return (
       <div>
-        <h1 style={{ textAlign: 'center' }}>Select Your Subject</h1>
+        <h1 style={{ textAlign: 'center' }}>
+          Select Your Subject
+          <div className="logout-button" style={{ alignItems: 'auto' }}>
+        {user && (
+          <button onClick={logout}>Logout</button>
+        )}
+      </div>
+        </h1>
         <ul>
-          {subjects.map((subject, index) => (
-            <li key={index} style={{ cursor: 'pointer' }} onClick={() => setSelectedSubject(subject)}>
-              {subject}
+          {subjects.map((subject) => (
+            <li key={subject.id} style={{ cursor: 'pointer' }} onClick={() => setSelectedSubject(subject)}>
+              {subject.name} - {subject.typeOfSubject}
             </li>
           ))}
         </ul>
@@ -62,26 +100,40 @@ const TeacherPage = () => {
     return <SubjectsList />;
   }
 
-  const handleActivityClick = (activity) => {
+  const handleActivityClick = async (activity) => {
     // Aici deschidem pagina de feedback pentru activitatea selectată
     setSelectedActivity(activity);
-  };
+    try {
+      const feedbackResponse = await getFeedbackByActivity(activity.activityId);
 
-  const closeFeedback = () => {
-    setSelectedActivity(null);
+      console.log("feedback by activity",feedbackResponse)
+      if (feedbackResponse.status === 200) {
+        setFeedbackData(feedbackResponse.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const AddActivityModal = () => {
     const [title, setTitle] = useState('');
-    const [time, setTime] = useState('');
-    const [date, setDate] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [description, setDescription] = useState('');
     const [accessCode, setAccessCode] = useState('');
 
     const handleSubmit = (event) => {
       event.preventDefault();
-      handleSaveActivity({ title, date, time, accessCode });
+      const activityData = {
+        name: title,
+        description: description,
+        startDate: startDate,
+        endDate: endDate,
+        accessCode:accessCode
+      }
+      handleSaveActivity(activityData);
     };
-
+   
     return (
       <div className="modal" style={{ display: isModalOpen ? 'block' : 'none' }}>
         <form onSubmit={handleSubmit}>
@@ -93,22 +145,29 @@ const TeacherPage = () => {
             onChange={(e) => setTitle(e.target.value)}
             required
           />
-
-          <label htmlFor="time">Set hour:</label>
+          <label htmlFor="title">Description:</label>
           <input
-            type="time"
-            id="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
+            type="text"
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             required
           />
 
-          <label htmlFor="date">Set data:</label>
+          <label htmlFor="date">Set start data:</label>
           <input
             type="date"
-            id="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            id="startDate"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            required
+          />
+          <label htmlFor="date">Set end data:</label>
+          <input
+            type="date"
+            id="endDate"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
             required
           />
 
@@ -127,16 +186,18 @@ const TeacherPage = () => {
       </div>
     );
   };
-
+  const formattedDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric'};
+    return new Date(dateString).toLocaleString(undefined, options);
+  };
   return (
     <div>
       <h1 style={{ textAlign: 'center' }}>Teacher's Page</h1>
       <a
         style={{
           position: 'absolute',
-          bottom: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
+          top: '30px', 
+          left: '10px', 
           backgroundColor: '#007bff',
           color: '#ffffff',
           padding: '10px 20px',
@@ -147,8 +208,8 @@ const TeacherPage = () => {
         }}
         href="#"
         onClick={() => handleSubjectSelect(null)}>Back to Subjects</a> {/* Apelez functia de revenire la materii  */}
-        <h2 style={{textAlign: 'center'}}>Subject: {selectedSubject}</h2>
-      {(activitiesBySubject[selectedSubject] || []).map((activity, index) => (
+        <h2 style={{textAlign: 'center'}}>Subject: {`${selectedSubject.name} - ${selectedSubject.typeOfSubject}`}</h2>
+      {(activities || []).map((activity, index) => (
         <div
           key={index}
           style={{
@@ -159,9 +220,10 @@ const TeacherPage = () => {
             cursor: 'pointer',
           }}
           onClick={() => handleActivityClick(activity)}>
-          <p>Titlu: {activity.title}</p>
-          <p>Ora: {activity.time}</p>
-          <p>Data: {activity.date}</p>
+          <p>Titlu: {activity.name}</p>
+          <p>description: {activity.description}</p>
+          <p>start date: {formattedDate(activity.startDate)}</p>
+          <p>end date: {formattedDate(activity.endDate)}</p>
           <p>Cod Acces: {activity.accessCode}</p>
         </div>
       ))}
@@ -182,14 +244,27 @@ const TeacherPage = () => {
 
       {isModalOpen && <AddActivityModal />}
 
-      {selectedActivity && (
-        <div>
-          <h2>Feedback for activity: {selectedActivity.title}</h2>
-          <p>Feedback date: {feedbackData ? feedbackData.date : 'Loading ...'}</p>
-          <p>Feedback: {feedbackData ? feedbackData.text: 'Loading...'}</p>
-        </div>
-      )}
+      {selectedActivity&&feedbackData &&feedbackData.length > 0 ? (
+        
+      <div>
+        { <h2>Feedback for activity: {selectedActivity.name}</h2> }
+            {feedbackData.map((feedback, index) => (
+              <div key={index}>
+                <p>countSmiley: {feedback.countSmiley}</p>
+                <p>countFrowny: {feedback.countFrowny}</p>
+                <p>countConfused: {feedback.countConfused}</p>
+                <p>countSurprised: {feedback.countSurprised}</p>
+                <p>createdAt: {feedback.createdAt}</p>
+              </div>
+            ))}
+          </div>
+          ) : (
+            selectedActivity ? (
+              <p>No feedback available for this activity.</p>
+            ) : null
+          )}
     </div>
   );
 };
+
 export default TeacherPage;

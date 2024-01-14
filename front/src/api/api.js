@@ -22,18 +22,18 @@ export async function login(userData, role) {
   }
 }
 
-export async function registerUser(userData) {
-    if (!userData.username || !userData.email || !userData.password) {
-      throw new Error("incomplete values");
-    }
-  
+export async function registerUser(userData) {  
     try {
-        const response = await axios.post("user/register/", userData,{
-            withCredentials: true, 
-        });
+        const response = await axios.post("user/register/", {
+          username: userData.username,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          password: userData.password,
+          mail: userData.mail,
+          typeUser: userData.typeUser,
+        },);
     
-        if (!response.ok) {
-            const errorData = await response.json();
+        if (response.status!=201) {
           throw new Error(response.data.error || 'Registration failed');
         }
     
@@ -106,6 +106,32 @@ const user = localStorage.getItem('user');
       console.log(err)
     }
 }
+
+export async function addActivity(activityData,subjectId) {
+  const token = localStorage.getItem('JWTToken');
+  const user = localStorage.getItem('user');
+
+  try {
+    const response = await axios.post("activity/",  {
+      name:activityData.name,
+      startDate:activityData.startDate,
+      endDate:activityData.endDate,
+      description: activityData.description,
+      accessCode: activityData.accessCode,
+      subjectId: subjectId,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 201) {
+      return response
+    } 
+  } catch (err) {
+    console.log(err)
+  }
+}
 export async function getFeedbackByActivity(activityId) {
 const token = localStorage.getItem('JWTToken');
 
@@ -116,33 +142,3 @@ const token = localStorage.getItem('JWTToken');
       }}
   )
 }
-
-// // ----------REFAC TRY ACCESS
-// export async function handleAccess(currentActivity) {
-//     try {
-//         // Perform the API request to check the access code
-//         const response = await axios.post(
-//         //   `/tryAccessCode/${currentActivity.activityId}`,
-//           `/feedback/tryCode/${currentActivity.activityId}`,
-//           { accessCode },
-//           {
-//             headers: {
-//               "Content-Type": "application/json",
-//             //   Authorization: `Bearer ${localStorage.getItem("JWTToken")}`,
-//             },
-//           }
-//         );
-    
-//         if (response.status === 200) {
-//           // Access code is valid, you can proceed with your logic
-//           console.log("Access code is valid!");
-//         } else {
-//           // Access code is invalid, handle the error
-//           console.error("Access code is invalid!");
-//         }
-//       } catch (error) {
-//         console.error("Error checking access code:", error);
-//       }
-// }
-
-  

@@ -14,21 +14,20 @@ function Paths() {
   const user = rootContext.user;
   const userType = rootContext.typeUser;
 
-  // useEffect(() => {
-  //   // Check if the user exists and navigate accordingly
-  //   if (!user&& window.location.pathname !== '/login') {
-  //     window.location.href = '/login'; // Use this approach for redirection
-  //   }
-  // }, [user]);
+  useEffect(() => {
+    // Check if the user exists and navigate accordingly
+    if (!user&& window.location.pathname !== '/login') {
+      window.location.href = '/login'; // Use this approach for redirection
+    }
+  }, [user]);
 
   return (
     <Router>
       <Routes>
-        {/* {userType === 'teacher' && <Route path="/teacher/*" element={<Teacher />} />} */}
+        {userType === 'teacher' && <Route path="/teacher/*" element={<Teacher />} />}
         {userType === 'student' && <Route path="/student/*" element={<Student />} />}
         <Route path="/feedback/:activityId" element={<Feedback />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/teacher" element={<Teacher />} />
         <Route path="/register" element={<Register />} />
         {/* Add a default route that navigates to the login page */}
         <Route path="/*" element={<Navigate to="/login" replace />} />
