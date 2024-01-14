@@ -19,7 +19,7 @@ function Paths() {
             <>
                 <Router>
                 <Routes>
-                    {userType === 'teacher' && <Route path="/teacher/*" element={<Teacher />} />}
+                    {/* {userType === 'teacher' && <Route path="/teacher/*" element={<Teacher />} />} */}
                     {/* {userType === 'student' && <Route path="/student/*" element={<Student />} />} */}
                 </Routes>
                 </Router>
@@ -31,6 +31,7 @@ function Paths() {
             <Router>
               <Routes>
               <Route path="/student" element={<Student />} ></Route>
+              <Route path="/teacher" element={<Teacher />} ></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Register />}></Route>
               </Routes>

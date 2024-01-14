@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getSubjects,getActivitiesBySubject,handleAccess } from "../api/api";
+import { getSubjects,getActivitiesBySubject} from "../api/api";
 import '../assets/css/pages/Student.css'
 import { usePopper } from 'react-popper';
 
@@ -94,7 +94,7 @@ function Student() {
                                     style={styles.popper}
                                     {...attributes.popper}>
                                     <AccessForm
-                                        onSubmit={() => handleAccess(activity)}
+                                        //onSubmit={() => handleAccess(activity)}
                                         onCodeChange={(code) => setAccessCode(code)}
                                     />
                

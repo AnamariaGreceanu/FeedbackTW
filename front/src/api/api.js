@@ -51,7 +51,7 @@ export async function getActivitiesBySubject(name, typeOfSubject) {
         { "Content-Type": "application/json" }
     )
 }
-
+/*
 // ----------REFAC TRY ACCESS
 export async function handleAccess(currentActivity) {
     try {
@@ -79,5 +79,5 @@ export async function handleAccess(currentActivity) {
         console.error("Error checking access code:", error);
       }
 }
-
+*/
   

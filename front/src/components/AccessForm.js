@@ -25,4 +25,4 @@ const AccesForm = ({ onSubmit,onCodeChange }) => {
     )
 }
 
-export default FeedbackForm;
+export default AccesForm;
