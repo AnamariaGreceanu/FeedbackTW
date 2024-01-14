@@ -10,7 +10,7 @@ router.route("/:activityId")
     .patch(activityController.updateActivity)
     .delete(activityController.deleteActivity)
 router.route("/checkAccesCode/:activityId")
-    .get(activityController.checkAccessCode)
+    .post(activityController.checkAccessCode)
 router.route("/getActivities/:subjectName/:subjectType")
     .get(activityController.getActivitiesBySubject)
 module.exports=router

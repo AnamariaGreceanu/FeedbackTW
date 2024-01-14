@@ -24,10 +24,9 @@ function Login() {
         }
         try {
             const user = await login(userData, role)
-              localStorage.setItem("resetToken", user.resetToken)
             setUser(user)
             setTypeUser(user.typeUser)
-            navigate("/")
+            navigate(`/${role}`)
         } catch (error) {
             console.log(error)
             alert("Credentiale invalide")
@@ -44,9 +43,6 @@ function Login() {
         console.log('Role selected:', role);
     };
   
-
-    // const cookies = new Cookies();
-
     return (
         <div className="container">
             <div className="form-title-class">

@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const feedbackController = require("../controllers/feedbackController")
-const checkAvailability = require("../controllers/activityController").tryAccessCode
+const checkAvailability = require("../controllers/activityController").checkAvailability
 
 router.route("/addFeedback/:activityId")
     .post(checkAvailability, feedbackController.addFeedback)

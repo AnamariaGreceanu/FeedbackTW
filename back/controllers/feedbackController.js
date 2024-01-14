@@ -1,3 +1,5 @@
+const user = require("../models/user");
+
 const FeedbackDB = require("../models").Feedback
 const ActivityDB = require("../models").Activity
 
@@ -30,7 +32,9 @@ const feedbackController = {
             let {
                 countSmiley,countFrowny,countSurprised,countConfused
             } = req.body
-            let feedback = await FeedbackDB.create({ ...req.body, activityId:req.params.activityId, studentId:req.user})
+            console.log("req.user",req.user)
+            let feedback = await FeedbackDB.create({ ...req.body, activityId: req.params.activityId, studentId: req.user })
+            console.log("feeed",feedback)
             return res.status(201).send({ message: "feedback created", feedback })
         } catch (err) {
             console.log(err)

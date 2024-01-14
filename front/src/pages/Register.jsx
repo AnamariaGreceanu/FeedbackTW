@@ -7,7 +7,6 @@ import { MdDriveFileRenameOutline } from "react-icons/md";
 
 import '../assets/css/pages/Auth.css'
 
-
 // import Cookies from "universal-cookie";
 
 function Register() {
@@ -29,9 +28,7 @@ function Register() {
 
         try {
             const user = await registerUser(userData)
-
             //   localStorage.setItem("resetToken", user.resetToken)
-  
             navigate("/login")
         } catch (error) {
             console.error(error)
