@@ -85,13 +85,14 @@ const userController = {
     },
     loginUser: async (req, res) => {
         try {
-            let { username, password } = req.body
+            // console.log("alala")
+            let { mail, password } = req.body
             const { role } = req.params;
 
-            if (!username || !password) {
+            if (!mail || !password) {
                 return res.status(400).send("complete all the fields!")
             }
-            let user = await UserDb.findOne({ where: { username } })
+            let user = await UserDb.findOne({ where: { mail } })
 
             if (role === 'teacher') {
                 if (!user || user.typeUser != "teacher") {

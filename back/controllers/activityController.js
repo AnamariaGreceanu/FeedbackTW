@@ -3,7 +3,7 @@ const SubjectDB = require("../models").Subject
 const Op = require("sequelize").Op
 
 const checkAvailability = (startDate, endDate) => {
-    let now=new Date()
+    let now = new Date()
     if (startDate < now && endDate > now) {
         return true
     }
@@ -17,6 +17,22 @@ const activityController = {
             if (!activities.length) {
                 return res.status(404).send("No activities existing yet!");
             } 
+            activities = activities.map((activity) => {
+                activity.isActive = checkAvailability(
+                    (activity.startDate),
+                    (activity.endDate)
+                );
+                return activity;
+            });
+
+            await Promise.all(
+                activities.map((activity) =>
+                    ActivityDB.update(
+                        { available: activity.available },
+                        { where: { id: activity.id } }
+                    )
+                )
+            );
             return res.status(200).send(activities)
         } catch (err) {
             return res.status(500).send({ message: "Server error!" });
@@ -31,7 +47,7 @@ const activityController = {
             }
              if (!checkAvailability(activity.startDate, activity.endDate)) {
                 activity.isActive = false
-                await activity.save()
+                 await activity.save()
             }
             activity.isActive = true
             await activity.save()
@@ -104,9 +120,26 @@ const activityController = {
             if(!subject) {
                 return res.status(404).send({ message: `subject does not exist` });
             }
-            const activities = await ActivityDB.findAll({
+            let activities = await ActivityDB.findAll({
               where: { subjectId: subject.subjectId },
             });
+            activities = activities.map((activity) => {
+                activity.isActive = checkAvailability(
+                    (activity.startDate),
+                    (activity.endDate)
+                );
+                return activity;
+            });
+
+            await Promise.all(
+                activities.map((activity) =>
+                    ActivityDB.update(
+                        { available: activity.available },
+                        { where: { id: activity.id } }
+                    )
+                )
+            );
+           
             return res.status(200).send(activities)
         } catch (error) {
             console.log(error)
