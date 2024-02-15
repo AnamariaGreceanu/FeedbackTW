@@ -1,23 +1,39 @@
 const jwt = require("jsonwebtoken")
 const UserDb = require("../models").User
+const dotenv = require('dotenv');
 
-const SAFE_ROUTES = ['/user/login/', '/user/register/', '/reset/']
+dotenv.config()
+const SAFE_ROUTES = ['/user/login/teacher','/user/login/student', '/user/register/', '/reset/']
 
-const authenticateToken = (req, res, next) => {
-    if(SAFE_ROUTES.includes(req.path)) return next()
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    if (!token) {
+const authenticateToken = async (req, res, next) => {
+  if (SAFE_ROUTES.includes(req.path)) {
+    return next()
+  }
+  const authHeader = req.headers["authorization"];
+  console.log(authHeader)
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
       return res.status(401).send("Authorization failed. No access token.");
+  }
+  console.log(token)
+  try {
+    const { mail } = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(mail)
+    const user = await UserDb.findOne({ where: { mail } });
+    if (!user) {
+        return res.status(404).send("User not found");
     }
-    jwt.verify(token, process.env.JWT_SECRET, async(err, mail) => {
-      if (err) {
-        return res.status(403).send("Could not verify token");
-      }
-      const user = await UserDb.findOne({where:{mail}})
-      req.user = user.id
-    });
+
+    console.log("user",user)
+    req.user = user.userId; 
+    console.log("req.user",req.user)
     return next();
+  } catch (err) {
+        console.error(err);
+        return res.status(403).send("Could not verify token");
+  }
+
 };
   
 module.exports=authenticateToken

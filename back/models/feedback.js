@@ -23,17 +23,15 @@ module.exports = (db, DataTypes) => {
             type:DataTypes.INTEGER,
             defaultValue: 0
         },
-        createdDateAt:{
-            type:DataTypes.DATE,
-            defaultValue: DataTypes.NOW,
-        },
-        activityId:{
-            type:DataTypes.INTEGER,
-            allowNull: true,
-        }
+        
+        // activityId:{
+        //     type:DataTypes.INTEGER,
+        //     allowNull: true,
+        // }
       },
       {
-        freezeTableName: true,
+          freezeTableName: true,
+          
       }
     );
     return feedback;

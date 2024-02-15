@@ -20,7 +20,7 @@ module.exports = (db, DataTypes) => {
             allowNull: false,
         },
         accessCode:{
-            type:DataTypes.INTEGER,
+            type:DataTypes.STRING,
             allowNull: false,
         },
         endDate:{
@@ -32,13 +32,10 @@ module.exports = (db, DataTypes) => {
             allowNull: false,
             defaultValue:false
         },
-        subjectId:{
-            type:DataTypes.INTEGER,
-            allowNull: true,
-        },
       },
       {
         freezeTableName: true,
+        
       }
     );
     return activity;

@@ -1,8 +1,10 @@
 const ActivityDB = require("../models").Activity
 const SubjectDB = require("../models").Subject
+const Op = require("sequelize").Op
 
-const checkAvailability = (startDate,endDate) => {
-    if (startDate < Date.now && endDate > Date.now) {
+const checkAvailability = (startDate, endDate) => {
+    let now = new Date()
+    if (startDate < now && endDate > now) {
         return true
     }
     return false
@@ -15,6 +17,22 @@ const activityController = {
             if (!activities.length) {
                 return res.status(404).send("No activities existing yet!");
             } 
+            activities = activities.map((activity) => {
+                activity.isActive = checkAvailability(
+                    (activity.startDate),
+                    (activity.endDate)
+                );
+                return activity;
+            });
+
+            await Promise.all(
+                activities.map((activity) =>
+                    ActivityDB.update(
+                        { available: activity.available },
+                        { where: { id: activity.id } }
+                    )
+                )
+            );
             return res.status(200).send(activities)
         } catch (err) {
             return res.status(500).send({ message: "Server error!" });
@@ -29,7 +47,7 @@ const activityController = {
             }
              if (!checkAvailability(activity.startDate, activity.endDate)) {
                 activity.isActive = false
-                await activity.save()
+                 await activity.save()
             }
             activity.isActive = true
             await activity.save()
@@ -43,12 +61,17 @@ const activityController = {
             let {
                 name, startDate,description,accessCode,endDate,subjectId
             } = req.body
+            console.log("dati", startDate, endDate)
+            console.log("seubject",subjectId)
+
             if (startDate > endDate) {
                 return res.status(404).send("starting date should be before ending date")
             }
-            isActive=checkAvailability(startDate,endDate)
-            let activity = await ActivityDB.create({ ...req.body, isActive, subjectId})
-            return res.status(201).send({ message: "activity created" }, activity)
+            isActive = checkAvailability(startDate, endDate)
+            console.log("isactive",isActive)
+            let activity = await ActivityDB.create({ ...req.body, isActive })
+            console.log("activity",activity)
+            return res.status(201).send({ message: "activity created", activity })
         } catch (err) {
             return res.status(500).send({ message: "Server error!" });
         }
@@ -63,10 +86,16 @@ const activityController = {
             if (!activity) {
                 return res.status(404).send("activity does not exist")
             }
+            activity.set({ ...activity.dataValues, ...req.body });
+            if (activity.startDate > activity.endDate) {
+                return res.status(404).send("starting date should be before ending date")
+            }
+            activity.isActive=checkAvailability(activity.startDate,activity.endDate)
+            
             await activity.update({ ...req.body })
             activity = await activity.save()
-            return res.status(200).send({ message: "activity updated" }, activity)
-        } catch {
+            return res.status(200).send({ message: "activity updated", activity })
+        } catch(err) {
             return res.status(500).send({ message: "Server error!" });
         }
     },
@@ -86,24 +115,43 @@ const activityController = {
     getActivitiesBySubject: async (req, res) => {
         try {
             const subjectName = req.params.subjectName;
-            if (!subjectName) {
-                return res.status(400).send("provide a name")
+            const subjectType = req.params.subjectType;
+            if (!subjectName || !subjectType) {
+                return res.status(400).send("provide a name and type of subject")
             }
             const subject = await SubjectDB.findOne({
-              where: { name:subjectName },
+              where: { [Op.and]: [{ name: subjectName }, { typeOfSubject:subjectType }] },
             });
             if(!subject) {
                 return res.status(404).send({ message: `subject does not exist` });
             }
-            const activities = await ActivityDB.findAll({
-              where: { subjectId: subject.id },
+            let activities = await ActivityDB.findAll({
+              where: { subjectId: subject.subjectId },
             });
+            activities = activities.map((activity) => {
+                activity.isActive = checkAvailability(
+                    (activity.startDate),
+                    (activity.endDate)
+                );
+                return activity;
+            });
+
+            await Promise.all(
+                activities.map((activity) =>
+                    ActivityDB.update(
+                        { available: activity.available },
+                        { where: { id: activity.id } }
+                    )
+                )
+            );
+           
             return res.status(200).send(activities)
-          } catch (error) {
+        } catch (error) {
+            console.log(error)
             return res.status(500).send({ message: "Server Error!" });
           }
     },
-    tryAccessCode: async (req, res,next) => {
+    checkAvailability: async (req, res, next) => {
         try {
             let { activityId } = req.params;
             if (!activityId) {
@@ -116,16 +164,31 @@ const activityController = {
             if (!checkAvailability(activity.startDate, activity.endDate)) {
                 activity.isActive = false
                 await activity.save()
-                return res.status(404).send({ message: `the code is not longer available`},false);
+                return res.status(404).send({ message: `the activity is not longer available` });
             }
             activity.isActive = true
             await activity.save()
-            let { accessCode } = req.body
-            if (!activity.accessCode == accessCode) {
-                return res.status(404).send({ message: `code is wrong`},false);
-            }
             next()
         } catch (err) {
+            return res.status(500).send({ message: "Server Error!" });
+        }
+    },
+    checkAccessCode: async (req, res, next) => {
+        try {
+            let { activityId } = req.params;
+            if (!activityId) {
+                return res.status(400).send("provide an activity id")
+            }
+            let activity = await ActivityDB.findByPk(activityId)
+            if (!activity) {
+                return res.status(404).send("activity does not exist")
+            }
+            let { accessCode } = req.body
+            if (activity.accessCode !== accessCode) {
+                return res.status(404).send({ message: `code is wrong`});
+            }
+            return res.status(200).send(true)
+        }catch (err) {
             return res.status(500).send({ message: "Server Error!" });
         }
     }

@@ -15,4 +15,5 @@ app.listen(port, ()=>{
 })
 
 app.use("/api",authenticateToken,router)
+// app.use("/api",router)
 

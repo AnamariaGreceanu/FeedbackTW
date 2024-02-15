@@ -1,8 +1,8 @@
-const connectionDb = require("../config")
+const connectionDb = require("../config/db")
 
 const dbController = {
     reset: (req, res) => {
-        connectionDb.sync({alter: true})
+        return connectionDb.sync({alter: true})
         .then(() => {
             res.status(200).send({message: "Baza de date a fost resetata cu succes"});
         })

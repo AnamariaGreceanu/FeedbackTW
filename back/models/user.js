@@ -10,7 +10,10 @@ module.exports = (db, DataTypes) => {
       username:{
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+          len: [3, 50]
+        }
       },
       password: {
         type: DataTypes.STRING,
@@ -19,7 +22,10 @@ module.exports = (db, DataTypes) => {
       mail: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+          len: [3, 50]
+        }
       },
       lastName:{
         type: DataTypes.STRING,
